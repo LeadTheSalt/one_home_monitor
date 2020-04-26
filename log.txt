@@ -1,4 +1,0 @@
-INFO: onehomemonitor.go:36: text to append
-INFO: onehomemonitor.go:41: text to append
-INFO: onehomemonitor.go:42: Stating server on : :8080
-24240-19-2419 49:48:47 [INFO] onehomemonitor.go:41: Stating server on : :8080

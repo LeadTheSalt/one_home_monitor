@@ -42,11 +42,11 @@ clusterfqdn = # fqdn to MongoDB server
 ```
 
 ## Extra Documenation/Help
-https://www.alexedwards.net/blog/serving-static-sites-with-go
-https://stackoverflow.com/questions/26152993/go-logger-to-print-timestamp
-http://decouvric.cluster013.ovh.net/golang/gestion-des-erreurs-en-go.html
-https://stackoverflow.com/questions/55352362/filter-in-golang-mongodb
-https://kb.objectrocket.com/mongo-db/how-to-construct-mongodb-queries-from-a-string-using-golang-551
-https://github.com/chartjs/Chart.js
-https://getuikit.com/docs/introduction
-https://www.ijsselmeervogels.nl/cd
+https://www.alexedwards.net/blog/serving-static-sites-with-go  
+https://stackoverflow.com/questions/26152993/go-logger-to-print-timestamp  
+http://decouvric.cluster013.ovh.net/golang/gestion-des-erreurs-en-go.html  
+https://stackoverflow.com/questions/55352362/filter-in-golang-mongodb   
+https://kb.objectrocket.com/mongo-db/how-to-construct-mongodb-queries-from-a-string-using-golang-551  
+https://github.com/chartjs/Chart.js  
+https://getuikit.com/docs/introduction  
+https://www.ijsselmeervogels.nl/cd  
