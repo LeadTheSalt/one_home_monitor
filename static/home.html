@@ -1,1 +1,219 @@
-<h1>This is it</h1>
+<!DOCTYPE HTML>
+<html>
+	<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<title>One Home Monitor</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta name="author" content="LeadTheSalt" />
+    <link rel="shortcut icon" type="image/png" href="/favicon.ico"/>
+	<link href="https://fonts.googleapis.com/css?family=Poppins:300,400,500,600" rel="stylesheet">
+	<link href="https://fonts.googleapis.com/css?family=Nunito:200,300,400" rel="stylesheet">
+    <!-- UIkit CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/uikit@3.4.2/dist/css/uikit.min.css" />
+    <!-- UIkit JS -->
+    <script src="https://cdn.jsdelivr.net/npm/uikit@3.4.2/dist/js/uikit.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/uikit@3.4.2/dist/js/uikit-icons.min.js"></script>
+    <!-- charts JS -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0"></script>
+     <!-- jquery -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    
+    </head>
+	<body>
+        <div class="uk-width-1-1 uk-inline uk-background-primary">
+            <div class="uk-container uk-container-center uk-margin-top uk-margin-bottom">
+                <div class="uk-text-center" uk-grid>
+                    <h1 class="uk-heading-small" style="margin: auto; color: white;"> 
+                        One Home Monitor
+                    </h1>
+                </div>
+            </div>
+        </div>
+        <div class="uk-width-1-1 uk-inline uk-background-primary">
+            <div class="uk-container uk-container-center uk-background-default uk-border-rounded uk-margin-bottom uk-margin-top" >
+                <div class="uk-container uk-margin-bottom uk-margin-top" id=data_place_holder>
+                    <div class="uk-margin-left uk-margin-right" uk-spinner id="load_spinner"></div><span id="load_msg">Loading data ...</span>
+                </div>
+            </div>
+        </div>
+        </div>
+        <div class="uk-background-muted uk-section uk-section-muted" uk-height-viewport="expand: true" data-height-expand="" style="min-height: 339px;">
+            <div class="uk-container uk-container-center" style="text-align: center;">
+                <span>Simple display page for home sensor. </span><br>
+                <a>https://github.com/LeadTheSalt/one_home_monitor</a>
+            </div>
+        </div>
+
+
+        <script>
+
+            function add_card(grid_div, txt_value, txt_unit, txt_name){
+                var div_new_cards = document.createElement("div");
+                div_new_cards.classList.add("uk-width-1-3");
+                var new_card = document.createElement("div");
+                new_card.classList.add("uk-card");
+                new_card.classList.add("uk-card-default");
+                new_card.classList.add("uk-card-body");
+                div_new_cards.appendChild(new_card);
+                grid_div.appendChild(div_new_cards);
+
+                var value = document.createElement("span");
+                value.classList.add("uk-text-large");
+                value.classList.add("uk-text-bolder");
+                value.appendChild(document.createTextNode(txt_value))
+                var unit = document.createElement("span");
+                unit.classList.add("uk-text-top");
+                unit.appendChild(document.createTextNode(txt_unit))
+                var name = document.createElement("span");
+                name.appendChild(document.createTextNode(txt_name))
+                new_card.appendChild(value)
+                new_card.appendChild(unit)
+                new_card.appendChild(document.createElement("br"))
+                new_card.appendChild(name)
+
+            }
+
+            function mean(tab){
+                c = 0; s = 0;
+                for (i in tab){s += parseFloat(tab[i]);c++}
+                return Math.round((s/c)* 10) / 10
+            }
+
+            function find_lasts_and_agg(readings){
+                last = 0
+                agg = []
+                for (var date in readings){
+                    if (last < date) { last = date}
+                    h = new Date(date*1000);
+                    h.setMinutes(0); h.setSeconds(0);
+                    h = h.getTime()/1000
+                    if (agg[h] !== undefined) {
+                        agg[h] = {
+                            "Te": agg[h]["Te"].concat([readings[date]["Te"]]),
+                            "Pr": agg[h]["Pr"].concat([readings[date]["Pr"]]),
+                            "Hu": agg[h]["Hu"].concat([readings[date]["Hu"]]),
+                        }
+                    } else {
+                        agg[h] = {
+                            "Te": [readings[date]["Te"]],
+                            "Pr": [readings[date]["Pr"]],
+                            "Hu": [readings[date]["Hu"]],
+                        }
+                    }
+                }
+                for (var date in agg){
+                    agg[date] = {
+                        "Te": mean(agg[date]["Te"]),
+                        "Pr": mean(agg[date]["Pr"]),
+                        "Hu": mean(agg[date]["Hu"]),
+                    }
+                }
+                return [readings[last]["Te"],readings[last]["Pr"],readings[last]["Hu"],agg]
+            }
+
+            //Load data one week
+            var d = new Date();
+            d.setDate(d.getDate() - 5);
+            f = Math.floor(d/1000)
+            query_url = '/sensordata?f=' + f  
+            $.getJSON(query_url, function(data) {
+
+                chart_div = document.getElementById('data_place_holder')
+                // cards and del the loading
+                
+                for (var sensor in data) {
+                    // cards 
+                    var title_div = document.createElement("div");
+                    title_div.classList.add("uk-text-left");
+                    title_div.classList.add("uk-margin-top");
+                    title_div.classList.add("uk-margin-bottom");
+                    var title_header = document.createElement("h1")
+                    title_header.classList.add("uk-heading-divider");
+                    title_header.appendChild(document.createTextNode(sensor.split('_')[1]));
+                    title_div.appendChild(title_header)
+                    chart_div.appendChild(title_div)
+                    var cards_div = document.createElement("div");
+                    cards_div.classList.add("uk-text-center");
+                    cards_div.classList.add("uk-margin-top");
+                    cards_div.classList.add("uk-margin-bottom");
+                    cards_div.setAttribute("uk-grid", "");
+                    cards_div.id = "grid_" + sensor;
+
+                    last_vals_and_agg = find_lasts_and_agg(data[sensor])
+                    add_card(cards_div,last_vals_and_agg[0],"°C","Temparature");
+                    add_card(cards_div,last_vals_and_agg[1],"hPa","Pressure");
+                    add_card(cards_div,last_vals_and_agg[2],"%","Hymidity");
+                    data[sensor] = last_vals_and_agg[3] //Replace data with aggregated data to the hour
+
+                    chart_div.appendChild(cards_div)
+
+                    // chart
+                    var chart = document.createElement("canvas");
+                    chart.id = sensor; chart_div.appendChild(chart);
+                    labels = []; temps = []; pressures = []; humidities = [];
+                    for (var reading_date in data[sensor]){
+                        l = new Date(reading_date*1000)
+                        l = l.toDateString() + " " + l.toLocaleTimeString('fr-FR').split(':')[0]+":"+l.toLocaleTimeString('fr-FR').split(':')[1]
+                        labels.push(l)
+                        temps.push(data[sensor][reading_date]['Te']);
+                        pressures.push(data[sensor][reading_date]['Pr']);
+                        humidities.push(data[sensor][reading_date]['Hu']);
+                        temp_dataset = {
+                            label: 'Temparatures (°C)',
+                            yAxisID: 'T',
+                            fill: false,
+                            backgroundColor: "rgb(25, 121, 169)",
+                            borderColor: "rgb(25, 121, 169)",
+                            data: temps
+                        }
+                        pres_dataset = {
+                            label: 'Pressure (hPa)',
+                            yAxisID: 'P',
+                            fill: false,
+                            backgroundColor: "rgb(224, 123, 57)",
+                            borderColor: "rgb(224, 123, 57)",
+                            data: pressures,
+                        }
+                    }
+                    var ctx = document.getElementById(sensor).getContext('2d');
+                    var chart = new Chart(ctx, {
+                        type: 'line',
+                        data: {
+                            labels: labels,
+                            datasets: [temp_dataset, pres_dataset]
+                        },
+                        options: {
+                            legend: {
+                                display: true,
+                                position: "bottom"
+                            },
+                            scales: {
+                                yAxes: [{
+                                    id: 'T',
+                                    type: 'linear',
+                                    position: 'left',
+                                }, {
+                                    id: 'P',
+                                    type: 'linear',
+                                    position: 'right',
+                                }],
+                                xAxes: [{
+                                    ticks: {
+                                        autoSkip: true,
+                                        maxTicksLimit: 15
+                                    }
+                                }]
+                            }
+                        }
+                    });
+                }
+
+            });
+            document.getElementById("load_spinner").remove();
+            document.getElementById("load_msg").remove();
+        </script>
+    </body>
+</html>
+    
+

@@ -49,4 +49,3 @@ https://stackoverflow.com/questions/55352362/filter-in-golang-mongodb
 https://kb.objectrocket.com/mongo-db/how-to-construct-mongodb-queries-from-a-string-using-golang-551  
 https://github.com/chartjs/Chart.js  
 https://getuikit.com/docs/introduction  
-https://www.ijsselmeervogels.nl/cd  
