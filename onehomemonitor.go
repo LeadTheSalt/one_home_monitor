@@ -147,6 +147,7 @@ func dataHandler(w http.ResponseWriter, req *http.Request){
 			res[v][time] = OutReading{r.Te,r.Pr,r.Hu} 
 		}
 	}
+	_ = client.Disconnect(ctx) // Discard error 
 	json.NewEncoder(w).Encode(res)
 }
 
