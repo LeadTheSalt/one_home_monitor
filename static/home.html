@@ -49,14 +49,11 @@
         <script>
 
             function add_card(grid_div, txt_value, txt_unit, txt_name){
-                var div_new_cards = document.createElement("div");
-                div_new_cards.classList.add("uk-width-1-3");
                 var new_card = document.createElement("div");
                 new_card.classList.add("uk-card");
                 new_card.classList.add("uk-card-default");
                 new_card.classList.add("uk-card-body");
-                div_new_cards.appendChild(new_card);
-                grid_div.appendChild(div_new_cards);
+                grid_div.appendChild(new_card);
 
                 var value = document.createElement("span");
                 value.classList.add("uk-text-large");
@@ -71,7 +68,6 @@
                 new_card.appendChild(unit)
                 new_card.appendChild(document.createElement("br"))
                 new_card.appendChild(name)
-
             }
 
             function mean(tab){
@@ -126,7 +122,6 @@
                     // cards 
                     var title_div = document.createElement("div");
                     title_div.classList.add("uk-text-left");
-                    title_div.classList.add("uk-margin-top");
                     title_div.classList.add("uk-margin-bottom");
                     var title_header = document.createElement("h1")
                     title_header.classList.add("uk-heading-divider");
@@ -134,9 +129,14 @@
                     title_div.appendChild(title_header)
                     chart_div.appendChild(title_div)
                     var cards_div = document.createElement("div");
+                    cards_div.classList.add("uk-child-width-1-3@s");
+                    cards_div.classList.add("uk-grid-match");
+                    cards_div.classList.add("uk-grid-small");
                     cards_div.classList.add("uk-text-center");
                     cards_div.classList.add("uk-margin-top");
                     cards_div.classList.add("uk-margin-bottom");
+                    cards_div.classList.add("uk-margin-left");
+                    cards_div.classList.add("uk-margin-right");
                     cards_div.setAttribute("uk-grid", "");
                     cards_div.id = "grid_" + sensor;
 
@@ -145,9 +145,8 @@
                     add_card(cards_div,last_vals_and_agg[1],"hPa","Pressure");
                     add_card(cards_div,last_vals_and_agg[2],"%","Hymidity");
                     data[sensor] = last_vals_and_agg[3] //Replace data with aggregated data to the hour
-
-                    chart_div.appendChild(cards_div)
-
+                    chart_div.appendChild(cards_div)                   
+                    
                     // chart
                     var chart = document.createElement("canvas");
                     chart.id = sensor; chart_div.appendChild(chart);
