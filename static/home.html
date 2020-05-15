@@ -54,6 +54,7 @@
                 new_card.classList.add("uk-card-default");
                 new_card.classList.add("uk-card-body");
                 grid_div.appendChild(new_card);
+                var inside_card = document.createElement("div");
 
                 var value = document.createElement("span");
                 value.classList.add("uk-text-large");
@@ -64,10 +65,11 @@
                 unit.appendChild(document.createTextNode(txt_unit))
                 var name = document.createElement("span");
                 name.appendChild(document.createTextNode(txt_name))
-                new_card.appendChild(value)
-                new_card.appendChild(unit)
-                new_card.appendChild(document.createElement("br"))
-                new_card.appendChild(name)
+                inside_card.appendChild(value)
+                inside_card.appendChild(unit)
+                inside_card.appendChild(document.createElement("br"))
+                inside_card.appendChild(name)
+                new_card.appendChild(inside_card)
             }
 
             function mean(tab){
@@ -110,7 +112,7 @@
 
             //Load data one week
             var d = new Date();
-            d.setDate(d.getDate() - 5);
+            d.setDate(d.getDate() - 7);
             f = Math.floor(d/1000)
             query_url = '/sensordata?f=' + f  
             $.getJSON(query_url, function(data) {
