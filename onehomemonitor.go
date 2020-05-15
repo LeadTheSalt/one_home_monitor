@@ -166,6 +166,7 @@ func dataHandler(w http.ResponseWriter, req *http.Request) {
 func main() {
 	loginfo(fmt.Sprintf("Stating server on : %s", bind))
 	http.HandleFunc("/sensordata", dataHandler)
+  	http.Handle("/js/", http.StripPrefix("/js/",http.FileServer(http.Dir("./static/js/"))))
 	http.HandleFunc("/", mainpageHandler)
 	log.Fatal(http.ListenAndServe(bind, nil))
 }
