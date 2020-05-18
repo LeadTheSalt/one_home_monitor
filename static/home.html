@@ -21,18 +21,26 @@
     
     </head>
 	<body>
-        <div class="uk-width-1-1 uk-inline uk-background-primary">
-            <div class="uk-container uk-container-center uk-margin-top uk-margin-bottom">
-                <div class="uk-text-center" uk-grid>
-                    <h1 class="uk-heading-small" style="margin: auto; color: white;"> 
-                        One Home Monitor
-                    </h1>
-                </div>
+        <nav class="uk-navbar-container" uk-navbar>
+            <div class="uk-navbar-left">
+                <a class="uk-navbar-toggle" uk-navbar-toggle-icon href="#" uk-toggle="target: #offcanvas-usage"></a>
+                <a href="" class="uk-navbar-item uk-logo">One Home Monitor</a>
+            </div>
+        </nav>
+        <div id="offcanvas-usage" uk-offcanvas>
+            <div class="uk-offcanvas-bar">
+        
+                <button class="uk-offcanvas-close" type="button" uk-close></button>
+        
+                <h3>Title</h3>
+        
+                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>
+        
             </div>
         </div>
-        <div class="uk-width-1-1 uk-inline uk-background-primary" uk-height-viewport="expand: true" data-height-expand="">
-            <div class="uk-container uk-container-center uk-background-default uk-border-rounded uk-margin-bottom uk-margin-top" >
-                <div class="uk-container uk-margin-bottom uk-margin-top" id=data_place_holder>
+        <div class="uk-width-1-1 uk-inline uk-background-default " uk-height-viewport="expand: true" data-height-expand="">
+            <div class="uk-container uk-container-center uk-border-rounded uk-margin-bottom uk-margin-top" >
+                <div class="uk-container uk-margin-bottom uk-margin-top " id=data_place_holder>
                     <div class="uk-margin-left uk-margin-right" uk-spinner id="load_spinner"></div><span id="load_msg">Loading data ...</span>
                 </div>
             </div>
@@ -125,7 +133,7 @@
                     var title_div = document.createElement("div");
                     title_div.classList.add("uk-text-left");
                     title_div.classList.add("uk-margin-bottom");
-                    var title_header = document.createElement("h1")
+                    var title_header = document.createElement("h2")
                     title_header.classList.add("uk-heading-divider");
                     title_header.appendChild(document.createTextNode(sensor.split('_')[1]));
                     title_div.appendChild(title_header)
@@ -214,6 +222,8 @@
             document.getElementById("load_spinner").remove();
             document.getElementById("load_msg").remove();
         </script>
+
+        <script type="text/javascript" src="/js/main.js"></script>
     </body>
 </html>
     
