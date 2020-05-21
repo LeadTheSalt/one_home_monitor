@@ -14,6 +14,7 @@
     <!-- UIkit JS -->
     <script src="https://cdn.jsdelivr.net/npm/uikit@3.4.2/dist/js/uikit.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/uikit@3.4.2/dist/js/uikit-icons.min.js"></script>
+
     <!-- charts JS -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0"></script>
      <!-- jquery -->
@@ -31,11 +32,18 @@
             <div class="uk-offcanvas-bar">
         
                 <button class="uk-offcanvas-close" type="button" uk-close></button>
-        
-                <h3>Title</h3>
-        
-                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>
-        
+                <div class="uk-panel">
+                    <span class="uk-align-left uk-margin-remove-adjacent uk-margin-small-right uk-margin-small-top" uk-icon="calendar"></span>
+                    <h3>Time selection</h3>
+                </div>
+                <div class="uk-width-1-2@s uk-width-2-5@m">
+                    <ul id="nav_list" " class="uk-nav uk-nav-default uk-nav-parent-icon" uk-nav >
+                        <li id="nav_today" onclick="load_data_today()"><a href="#">Today</a></li>
+                        <li id="nav_week" onclick="load_data_week()"><a href="#">Past week</a></li>
+                        <li id="nav_month" ><a onclick="load_data_month()">Past month</a></li>
+                        <li id="nav_year" ><a onclick="load_data_year()">Past year</a></li>
+                    </ul>
+                </div>
             </div>
         </div>
         <div class="uk-width-1-1 uk-inline uk-background-default " uk-height-viewport="expand: true" data-height-expand="">

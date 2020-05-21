@@ -3,12 +3,12 @@ function scale_this_date(date,scall_dist){
     h = new Date(date*1000);
     if (scall_dist > 60) {h.setSeconds(0);}
     if (scall_dist > 60*60) {h.setMinutes(0);}
-    if (scall_dist > 60*60*2) {h.setHours(parseInt((h.getHours)/2) * 2);}
-    if (scall_dist > 60*60*3) {h.setHours(parseInt((h.getHours)/3) * 3);}
-    if (scall_dist > 60*60*6) {h.setHours(parseInt((h.getHours)/6) * 6);}
-    if (scall_dist > 60*60*12) {h.setHours(parseInt((h.getHours)/12) * 12);}
+    if (scall_dist > 60*60*2) {h.setHours(parseInt((h.getHours())/2) * 2);}
+    if (scall_dist > 60*60*3) {h.setHours(parseInt((h.getHours())/3) * 3);}
+    if (scall_dist > 60*60*6) {h.setHours(parseInt((h.getHours())/6) * 6);}
+    if (scall_dist > 60*60*12) {h.setHours(parseInt((h.getHours())/12) * 12);}
     if (scall_dist > 60*60*24) {h.setHours(0);}
-    if (scall_dist > 60*60*24*3) {h.setDate(parseInt((h.getDate)/3) * 3);}
+    if (scall_dist > 60*60*24*3) {h.setDate(parseInt((h.getDate())/3) * 3);}
     // no point going futher
     return h/1000
 }
@@ -83,6 +83,9 @@ function layout_add_card(grid_div, txt_value, txt_unit, txt_name){
 }
 function create_layout(sensor,data){
     chart_div = document.getElementById('data_place_holder')
+    while(chart_div.firstChild){
+        chart_div.removeChild(chart_div.firstChild);
+    }
     // Add title of sensor
     var title_div = document.createElement("div");
     title_div.classList.add("uk-text-left");
@@ -109,6 +112,7 @@ function create_layout(sensor,data){
     layout_add_card(cards_div,data['last_hu'],"%","Hymidity");
     chart_div.appendChild(cards_div)  
     //Add chart
+    console.log(data['points_te'])
     var chart = document.createElement("canvas");
     chart.id = sensor; chart_div.appendChild(chart);
     temp_dataset = {
@@ -161,31 +165,59 @@ function create_layout(sensor,data){
 }
 
 // Apps functions
-function load_data_to_page(from,to,nb_points){
+function load_data_to_page(from,to,nb_points,active_id){
     from = Math.floor(from/1000)
     to = Math.floor(to/1000)
     query_url = '/sensordata?f=' + from 
     $.getJSON(query_url, function(data) {
         for (var sensor in data) {
             data = treat_data(data[sensor], from, to, nb_points)
+            // Remove spinner
+            if (document.body.contains(document.getElementById("load_spinner"))) {
+                document.getElementById("load_spinner").remove();
+                document.getElementById("load_msg").remove();
+            }
+            // print layout
             create_layout(sensor,data)
+            // update navbar
+            nav_list = document.getElementById('nav_list'); 
+            for (const list_el of nav_list.children){
+                list_el.classList.remove("uk-active");
+            }
+            var active_nav = document.getElementById(active_id);
+            active_nav.classList.add("uk-active");
+            UIkit.offcanvas(document.getElementById('offcanvas-usage')).hide();
         }
     })
 }
 
-// TODO: Creat presets
-// TODO: Creat functions called on button
 
-
-function main (){
-    // Load data for the frist time 
+function load_data_today(){
+    var to = new Date()
+    var from = new Date();
+    from.setDate(from.getDate() - 1);
+    load_data_to_page(from,to,100,'nav_today')  
+}
+function load_data_week(){
     var to = new Date()
     var from = new Date();
     from.setDate(from.getDate() - 5);
-    load_data_to_page(from,to,100)
-    // Remove spinner
-    document.getElementById("load_spinner").remove();
-    document.getElementById("load_msg").remove();
+    load_data_to_page(from,to,100,'nav_week')   
+}
+function load_data_month(){
+    var to = new Date()
+    var from = new Date();
+    from.setMonth(from.getMonth() -1);
+    load_data_to_page(from,to,100,'nav_month')     
+}
+function load_data_year(){
+    var to = new Date()
+    var from = new Date();
+    from.setYear(from.getYear() -1);
+    load_data_to_page(from,to,100,'nav_year')     
+}
+function main (){
+    load_data_week()
 }
 // call main function when the page is loaded 
 window.onload = function() {main()}
