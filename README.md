@@ -41,6 +41,10 @@ clusterfqdn = # fqdn to MongoDB server
 
 ```
 
+## TODO
+  * compute the data in the backend 
+  * clear/aggregate data base 
+
 ## Extra Documenation/Help
 https://www.alexedwards.net/blog/serving-static-sites-with-go  
 https://stackoverflow.com/questions/26152993/go-logger-to-print-timestamp  
