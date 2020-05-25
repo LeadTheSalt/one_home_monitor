@@ -16,7 +16,9 @@
     <script src="https://cdn.jsdelivr.net/npm/uikit@3.4.2/dist/js/uikit-icons.min.js"></script>
 
     <!-- charts JS -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0"></script>
+    <script type="text/javascript" src="/js/Chart.bundle.min.js"></script>
+    <!-- moment JS -->
+    <script type="text/javascript" src="/js/moment-with-locales.js"></script>
      <!-- jquery -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
     
@@ -38,10 +40,12 @@
                 </div>
                 <div class="uk-width-1-2@s uk-width-2-5@m">
                     <ul id="nav_list"  class="uk-nav uk-nav-default uk-nav-parent-icon" uk-nav >
-                        <li id="nav_today" onclick="load_data_today()"><a>Today</a></li>
-                        <li id="nav_week" onclick="load_data_week()"><a>Past week</a></li>
-                        <li id="nav_month" onclick="load_data_month()"><a>Past month</a></li>
-                        <li id="nav_year" onclick="load_data_year()"><a>Past year</a></li>
+                        <li id="nav_today" onclick="load_data('today')"><a>Today</a></li>
+                        <li id="nav_week" onclick="load_data('week')"><a>Past week</a></li>
+                        <li id="nav_month" onclick="load_data('month')"><a>Past month</a></li>
+                        <li id="nav_month" onclick="load_data('3month')"><a>Past 3 month</a></li>
+                        <li id="nav_month" onclick="load_data('6month')"><a>Past 6 month</a></li>
+                        <li id="nav_year" onclick="load_data('year')"><a>Past year</a></li>
                     </ul>
                 </div>
             </div>

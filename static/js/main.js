@@ -22,7 +22,7 @@ function treat_data(readings, from, to,  nb_points){
     last = 0
     scall_dist = (to - from) / nb_points 
     // depending on the scale_distance find the best agg 
-    agg_te = {}; agg_pr = {}; agg_hu = {}; scalled_dates = [], label_dates = []
+    agg_te = {}; agg_pr = {}; agg_hu = {}; scalled_dates = []
     for (var date in readings){
         if (last < date) { last = date} //find last date in data
         h = scale_this_date(date,scall_dist)
@@ -39,12 +39,18 @@ function treat_data(readings, from, to,  nb_points){
     }
     agg_te_out = [], agg_pr_out =[], agg_hu_out =[]
     for (const date of scalled_dates){
-        agg_te_out.push(mean(agg_te[date]))
-        agg_pr_out.push(mean(agg_pr[date]))
-        agg_hu_out.push(mean(agg_hu[date]))
-        l = new Date(date*1000)
-        l = l.toDateString() + " " + l.toLocaleTimeString('fr-FR').split(':')[0]+":"+l.toLocaleTimeString('fr-FR').split(':')[1]
-        label_dates.push(l)
+        agg_te_out.push({
+            t: new Date(date*1000),
+            y: mean(agg_te[date]),
+        })
+        agg_pr_out.push({
+            t: new Date(date*1000),
+            y: mean(agg_pr[date]),
+        })
+        agg_hu_out.push({
+            t: new Date(date*1000),
+            y: mean(agg_hu[date])
+        })
     }
     out_res = {
         'last_te': readings[last]["Te"],
@@ -53,7 +59,6 @@ function treat_data(readings, from, to,  nb_points){
         'points_te': agg_te_out,
         'points_pr': agg_pr_out,
         'points_hu':agg_hu_out,
-        'label_dates':label_dates,
     }
     return out_res
 }
@@ -112,9 +117,9 @@ function create_layout(sensor,data){
     layout_add_card(cards_div,data['last_hu'],"%","Hymidity");
     chart_div.appendChild(cards_div)  
     //Add chart
-    console.log(data['points_te'])
     var chart = document.createElement("canvas");
     chart.id = sensor; chart_div.appendChild(chart);
+    // TODO timechart
     temp_dataset = {
         label: 'Temparatures (°C)',
         yAxisID: 'T',
@@ -135,7 +140,6 @@ function create_layout(sensor,data){
     var chart = new Chart(ctx, {
         type: 'line',
         data: {
-            labels: data['label_dates'],
             datasets: [temp_dataset, pres_dataset]
         },
         options: {
@@ -154,14 +158,25 @@ function create_layout(sensor,data){
                     position: 'right',
                 }],
                 xAxes: [{
+                    type: 'time',
+                    time: {
+                        displayFormats:{
+                            hour: 'MMM DD HH:mm', // did not like the automatic way
+                        }
+                    },
                     ticks: {
+                        source: 'auto',
                         autoSkip: true,
                         maxTicksLimit: 15
+                    },
+                    scaleLabel: {
+                        display: true,
+                        labelString: 'Date'
                     }
                 }]
             }
         }
-    });
+    });   
 }
 
 // Apps functions
@@ -191,33 +206,33 @@ function load_data_to_page(from,to,nb_points,active_id){
     })
 }
 
-
-function load_data_today(){
+function load_data(timming){
     var to = new Date()
     var from = new Date();
-    from.setDate(from.getDate() - 1);
-    load_data_to_page(from,to,100,'nav_today')  
-}
-function load_data_week(){
-    var to = new Date()
-    var from = new Date();
-    from.setDate(from.getDate() - 5);
-    load_data_to_page(from,to,100,'nav_week')   
-}
-function load_data_month(){
-    var to = new Date()
-    var from = new Date();
-    from.setMonth(from.getMonth() -1);
-    load_data_to_page(from,to,100,'nav_month')     
-}
-function load_data_year(){
-    var to = new Date()
-    var from = new Date();
-    from.setYear(from.getYear() -1);
-    load_data_to_page(from,to,100,'nav_year')     
+    var nav_el = ''
+    if (timming == 'today') {
+        from.setDate(from.getDate() - 1);
+        nav_el = 'nav_today'
+    }else if (timming == 'week') {
+        from.setDate(from.getDate() - 7);
+        nav_el = 'nav_week'
+    }else if (timming == 'month') {
+        from.setMonth(from.getMonth() -1);
+        nav_el = 'nav_month'
+    }else if (timming == '3month'){
+        from.setMonth(from.getMonth() -3);
+        nav_el = 'nav_month'
+    }else if (timming == '6month'){
+        from.setMonth(from.getMonth() -6);
+        nav_el = 'nav_month'
+    }else if (timming == 'year'){
+        from.setYear(from.getYear() -1); 
+        nav_el = 'nav_year'
+    }
+    load_data_to_page(from,to,100,nav_el) 
 }
 function main (){
-    load_data_week()
+    load_data('week')
 }
 // call main function when the page is loaded 
 window.onload = function() {main()}
