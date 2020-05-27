@@ -234,5 +234,23 @@ function load_data(timming){
 function main (){
     load_data('week')
 }
+
+// Utility function for the database
+function optimize_db(){
+    // TODO : get status
+    query_url = '/optimize_db?a='+'start'
+    $.getJSON(query_url, function(data) {
+        UIkit.notification({
+            message: 'Resquest to server send and in treatment.',
+        });
+    })
+    .fail(function() {
+        UIkit.notification({
+            message: 'call to bankend failled.',
+            status:'danger',
+        });
+    })
+}
+
 // call main function when the page is loaded 
 window.onload = function() {main()}
