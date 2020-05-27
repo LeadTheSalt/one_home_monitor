@@ -38,6 +38,19 @@ var runningConf configuration
 var confFile string
 var logger *log.Logger
 
+//Data types
+type reading struct {
+	Ti string
+	Te string
+	Pr string
+	Hu string
+}
+type outReading struct {
+	Te string
+	Pr string
+	Hu string
+}
+
 func init() {
 	// Read running args
 	flag.StringVar(&confFile, "conf_file", "./onehomemonitor.toml", "Path to configuration file")
@@ -107,13 +120,39 @@ func connectToDB() (*mongo.Client, context.Context, context.CancelFunc, error) {
 	return client, ctx, cancel, nil
 }
 
-// func getData() error {
-// 	_, _, err := connectToDB()
-// 	if err != nil {
-// 		return err
-// 	}
-// 	return nil
-// }
+func getData(queryFilter bson.M) (map[string][]reading, error) {
+	var out = map[string][]reading{}
+	client, ctx, cancel, err := connectToDB()
+	defer cancel()
+	if err != nil {
+		return nil, err
+	}
+	// Register sensors readings
+	db := client.Database("onehomesensor") //database name hardcoded, as in collecting project
+	colNames, err := db.ListCollectionNames(context.Background(), bson.D{})
+	if err != nil {
+		return nil, err
+	}
+	for _, v := range colNames {
+		out[v] = []reading{}
+		coll := db.Collection(v)
+		cur, err := coll.Find(ctx, queryFilter)
+		if err != nil {
+			return nil, err
+		}
+		defer cur.Close(ctx)
+		for cur.Next(ctx) {
+			var r reading
+			err := cur.Decode(&r)
+			if err != nil {
+				return nil, err
+			}
+			out[v] = append(out[v], r)
+		}
+	}
+	_ = client.Disconnect(ctx) // Discard error
+	return out, nil
+}
 
 // func pushData() error {
 
@@ -127,18 +166,6 @@ func connectToDB() (*mongo.Client, context.Context, context.CancelFunc, error) {
 
 func dataHandler(w http.ResponseWriter, req *http.Request) {
 	loginfo(fmt.Sprintf("Query on URL : %s with query %s", req.URL.Path, req.URL.RawQuery))
-
-	type Reading struct {
-		Ti string
-		Te string
-		Pr string
-		Hu string
-	}
-	type OutReading struct {
-		Te string
-		Pr string
-		Hu string
-	}
 
 	// Prepare filter arguments
 	// f : from, t : to and l : limite
@@ -160,43 +187,21 @@ func dataHandler(w http.ResponseWriter, req *http.Request) {
 	} else {
 		queryFilter = bson.M{}
 	}
-
-	// Prepare db connection
-	var res = map[string]map[int]OutReading{}
-	client, ctx, cancel, err := connectToDB()
-	defer cancel()
+	var res = map[string]map[int]outReading{}
+	data, err := getData(queryFilter)
 	if err != nil {
 		http.Error(w, err.Error(), 500)
 	}
-
-	// Register sensors readings
-	db := client.Database("onehomesensor") //database name hardcoded, as in collecting project
-	colNames, err := db.ListCollectionNames(context.Background(), bson.D{})
-	if err != nil {
-		http.Error(w, err.Error(), 500)
-	}
-	for _, v := range colNames {
-		res[v] = map[int]OutReading{}
-		coll := db.Collection(v)
-		cur, err := coll.Find(ctx, queryFilter)
-		if err != nil {
-			http.Error(w, err.Error(), 500)
-		}
-		defer cur.Close(ctx)
-		for cur.Next(ctx) {
-			var r Reading
-			err := cur.Decode(&r)
-			if err != nil {
-				http.Error(w, err.Error(), 500)
-			}
+	for c, v := range data {
+		res[c] = map[int]outReading{}
+		for _, r := range v {
 			time, err := strconv.Atoi(r.Ti)
 			if err != nil {
 				http.Error(w, err.Error(), 500)
 			}
-			res[v][time] = OutReading{r.Te, r.Pr, r.Hu}
+			res[c][time] = outReading{r.Te, r.Pr, r.Hu}
 		}
 	}
-	_ = client.Disconnect(ctx) // Discard error
 	json.NewEncoder(w).Encode(res)
 }
 
