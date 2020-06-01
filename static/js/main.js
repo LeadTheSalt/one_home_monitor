@@ -226,7 +226,7 @@ function load_data(timming){
         from.setMonth(from.getMonth() -6);
         nav_el = 'nav_month'
     }else if (timming == 'year'){
-        from.setYear(from.getYear() -1); 
+        from.setYear(from.getYear() - 1 + 1900); 
         nav_el = 'nav_year'
     }
     load_data_to_page(from,to,100,nav_el) 
