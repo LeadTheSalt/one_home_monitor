@@ -16,6 +16,7 @@ Options are :
   * log_file : custom logging file, default is standart stdout.
 
 Backend part is accessible on url  http://localhost:8080/sensordata?f=[START_TIMESTAMP]&t=[END_TIMESTAMP]. It will send all reading between start and end timestamps. 
+It can also aggrégate the data stored in the database. It will aggregate data in order to have one value for 3 hours. 
 
 ## Integration / Instalation
 I advice to use Docker. Docker file is provided. TODO
@@ -43,7 +44,8 @@ clusterfqdn = # fqdn to MongoDB server
 
 ## TODO
   * compute the data in the backend 
-  * clear/aggregate data base 
+  * for the optimize_db order launch demand in parallel en send status of the demande
+  * better usse of types. Everything is in string, use floats.
 
 ## Extra Documenation/Help
 https://www.alexedwards.net/blog/serving-static-sites-with-go  

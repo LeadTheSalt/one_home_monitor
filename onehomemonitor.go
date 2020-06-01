@@ -10,6 +10,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"reflect"
 	"regexp"
 	"strconv"
 	"time"
@@ -40,10 +41,10 @@ var logger *log.Logger
 
 //Data types
 type reading struct {
-	Ti string
-	Te string
-	Pr string
-	Hu string
+	Ti string `bson:"ti"`
+	Te string `bson:"te"`
+	Pr string `bson:"pr"`
+	Hu string `bson:"hu"`
 }
 type outReading struct {
 	Te string
@@ -83,6 +84,18 @@ func loginfo(info string) {
 	logger.Print(info)
 }
 
+func utilDataStringAvr(t []string) string {
+	var total float64 = 0
+	for _, v := range t {
+		vf, err := strconv.ParseFloat(v, 64)
+		if err != nil {
+			return "0"
+		}
+		total += vf
+	}
+	return fmt.Sprintf("%.2f", (total / float64(len(t))))
+}
+
 func mainpageHandler(w http.ResponseWriter, req *http.Request) {
 	loginfo(fmt.Sprintf("Query on URL : %s", req.URL.Path))
 	var faviconTarget = regexp.MustCompile("/favicon.*")
@@ -97,10 +110,74 @@ func mainpageHandler(w http.ResponseWriter, req *http.Request) {
 func dbHandler(w http.ResponseWriter, req *http.Request) {
 	loginfo(fmt.Sprintf("Query on URL : %s with query %s", req.URL.Path, req.URL.RawQuery))
 	// get db ellements older then 1 month
-	// aggrégate
-	// send back to db aggrégate
-	// del old ellements
-	json.NewEncoder(w).Encode(true)
+	monthAgo := time.Now().AddDate(0, -1, 0).Unix()
+	queryFilter := bson.M{
+		"ti": bson.M{
+			"$lte": strconv.Itoa(int(monthAgo)),
+		},
+	}
+	data, err := getData(queryFilter)
+	if err != nil {
+		http.Error(w, err.Error(), 500)
+	}
+	for senName, senData := range data {
+		aggData := map[int64][]reading{}
+		addData := []reading{}
+		for _, r := range senData {
+			i, err := strconv.ParseInt(r.Ti, 10, 64)
+			if err != nil {
+				http.Error(w, err.Error(), 500)
+			}
+			aggDate := time.Unix(i, 0).Truncate(time.Hour * 3).Unix()
+			if _, pres := aggData[aggDate]; pres {
+				aggData[aggDate] = append(aggData[aggDate], r)
+			} else {
+				aggData[aggDate] = []reading{r}
+			}
+		}
+		for date, readings := range aggData {
+			tes := []string{}
+			prs := []string{}
+			hus := []string{}
+			for _, r := range readings {
+				tes = append(tes, r.Te)
+				prs = append(prs, r.Pr)
+				hus = append(hus, r.Hu)
+			}
+			aggReading := reading{
+				Ti: strconv.FormatInt(date, 10),
+				Te: utilDataStringAvr(tes),
+				Pr: utilDataStringAvr(prs),
+				Hu: utilDataStringAvr(hus),
+			}
+			needsToBeSent := true
+			for s, oriRead := range senData {
+				if reflect.DeepEqual(oriRead, aggReading) {
+					// the aggegated data is already in the reacieved data
+					senData = append(senData[:s], senData[s+1:]...)
+					needsToBeSent = false
+					break
+				}
+			}
+			if needsToBeSent {
+				addData = append(addData, aggReading)
+			}
+		}
+
+		// Send aggReadings selected to addData
+		for _, aggr := range addData {
+			// could explor sending a array of dataq
+			pushData(senName, aggr)
+			//go push data
+		}
+		// Delete reamaning data
+		for _, d := range senData {
+			delData(senName, d)
+			// go del data
+		}
+	}
+
+	json.NewEncoder(w).Encode(data)
 }
 
 func connectToDB() (*mongo.Client, context.Context, context.CancelFunc, error) {
@@ -154,15 +231,29 @@ func getData(queryFilter bson.M) (map[string][]reading, error) {
 	return out, nil
 }
 
-// func pushData() error {
+func pushData(colName string, r reading) error {
+	client, ctx, cancel, err := connectToDB()
+	defer cancel()
+	if err != nil {
+		return err
+	}
+	db := client.Database("onehomesensor").Collection(colName)
+	db.InsertOne(ctx, r)
+	_ = client.Disconnect(ctx)
+	return nil
+}
 
-// 	return nil
-// }
-
-// func delData() error {
-
-// 	return nil
-// }
+func delData(colName string, r reading) error {
+	client, ctx, cancel, err := connectToDB()
+	defer cancel()
+	if err != nil {
+		return err
+	}
+	db := client.Database("onehomesensor").Collection(colName)
+	db.DeleteOne(ctx, bson.M{"ti": r.Ti}) // Should be fine
+	_ = client.Disconnect(ctx)
+	return nil
+}
 
 func dataHandler(w http.ResponseWriter, req *http.Request) {
 	loginfo(fmt.Sprintf("Query on URL : %s with query %s", req.URL.Path, req.URL.RawQuery))
