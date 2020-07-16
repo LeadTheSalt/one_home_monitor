@@ -221,10 +221,10 @@ function load_data(timming){
         nav_el = 'nav_month'
     }else if (timming == '3month'){
         from.setMonth(from.getMonth() -3);
-        nav_el = 'nav_month'
+        nav_el = 'nav_3month'
     }else if (timming == '6month'){
         from.setMonth(from.getMonth() -6);
-        nav_el = 'nav_month'
+        nav_el = 'nav_6month'
     }else if (timming == 'year'){
         from.setYear(from.getYear() - 1 + 1900); 
         nav_el = 'nav_year'
