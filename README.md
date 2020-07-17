@@ -1,7 +1,7 @@
 [![Build Status](https://travis-ci.org/LeadTheSalt/one_home_monitor.svg?branch=master)](https://travis-ci.org/LeadTheSalt/one_home_monitor)
 
 # One Home Monitor 
-This peace of sofware aims to read data stored by onehomesensor projet (on my github page). It is web server writen thanks in GO, it provides a web page with graphs and a backend to get information in MongoDB storage. 
+This peace of sofware aims to read data stored by onehomesensor projet (on my github page). It is web server writen in GO. It provides a web page with graphs and a backend to get information in MongoDB storage. 
 
 ## Usage 
 ```
@@ -44,7 +44,6 @@ clusterfqdn = # fqdn to MongoDB server
 
 ## TODO
   * compute the data in the backend 
-  * for the optimize_db order launch demand in parallel en send status of the demande
   * better usse of types. Everything is in string, use floats.
 
 ## Extra Documenation/Help

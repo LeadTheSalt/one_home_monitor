@@ -241,10 +241,11 @@ function optimize_db(){
     query_url = '/optimize_db?a='+'start'
     $.getJSON(query_url, function(data) {
         UIkit.notification({
-            message: 'Resquest to server send and in treatment.',
+            message: data.msg,
         });
     })
     .fail(function() {
+        console.log(data)
         UIkit.notification({
             message: 'call to bankend failled.',
             status:'danger',
