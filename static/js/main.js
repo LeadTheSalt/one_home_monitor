@@ -186,6 +186,9 @@ function load_data_to_page(from,to,nb_points,active_id){
     query_url = '/sensordata?f=' + from 
     $.getJSON(query_url, function(data) {
         for (var sensor in data) {
+
+            
+
             data = treat_data(data[sensor], from, to, nb_points)
             // Remove spinner
             if (document.body.contains(document.getElementById("load_spinner"))) {
