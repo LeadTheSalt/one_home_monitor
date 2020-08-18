@@ -86,11 +86,16 @@ function layout_add_card(grid_div, txt_value, txt_unit, txt_name){
     inside_card.appendChild(name)
     new_card.appendChild(inside_card)
 }
-function create_layout(sensor,data){
+function clear_placeholder(){
     chart_div = document.getElementById('data_place_holder')
     while(chart_div.firstChild){
         chart_div.removeChild(chart_div.firstChild);
     }
+}
+
+function create_layout(sensor,data){
+    clear_placeholder()
+    chart_div = document.getElementById('data_place_holder')
     // Add title of sensor
     var title_div = document.createElement("div");
     title_div.classList.add("uk-text-left");
@@ -185,27 +190,39 @@ function load_data_to_page(from,to,nb_points,active_id){
     to = Math.floor(to/1000)
     query_url = '/sensordata?f=' + from 
     $.getJSON(query_url, function(data) {
+        var data_added = false
         for (var sensor in data) {
-
-            
-
-            data = treat_data(data[sensor], from, to, nb_points)
-            // Remove spinner
-            if (document.body.contains(document.getElementById("load_spinner"))) {
-                document.getElementById("load_spinner").remove();
-                document.getElementById("load_msg").remove();
+            if (Object.keys(data[sensor]).length == 0) { // id sensor has no data
+                continue;
+            } else{
+                data_added = true
             }
+            data_sen = treat_data(data[sensor], from, to, nb_points)
             // print layout
-            create_layout(sensor,data)
-            // update navbar
-            nav_list = document.getElementById('nav_list'); 
-            for (const list_el of nav_list.children){
-                list_el.classList.remove("uk-active");
-            }
-            var active_nav = document.getElementById(active_id);
-            active_nav.classList.add("uk-active");
-            UIkit.offcanvas(document.getElementById('offcanvas-usage')).hide();
+            create_layout(sensor,data_sen)
         }
+        // Remove spinner
+        if (document.body.contains(document.getElementById("load_spinner"))) {
+            document.getElementById("load_spinner").remove();
+            document.getElementById("load_msg").remove();
+        }
+        //no sensor with data 
+        if (!data_added) {
+            clear_placeholder()
+            msg_div = document.getElementById('data_place_holder')
+            var msg = document.createElement("span");
+            msg.appendChild(document.createTextNode("No data found from sensors on this period. Sorry."))
+            msg_div.appendChild(msg)
+
+        }
+        // update navbar
+        nav_list = document.getElementById('nav_list'); 
+        for (const list_el of nav_list.children){
+            list_el.classList.remove("uk-active");
+        }
+        var active_nav = document.getElementById(active_id);
+        active_nav.classList.add("uk-active");
+        UIkit.offcanvas(document.getElementById('offcanvas-usage')).hide();
     })
 }
 
