@@ -1,3 +1,22 @@
+//Constantes 
+var xAxes_parm = [{
+        type: 'time',
+        time: {
+            displayFormats:{
+                hour: 'MMM DD HH:mm', // did not like the automatic way
+            }
+        },
+        ticks: {
+            source: 'auto',
+            autoSkip: true,
+            maxTicksLimit: 15
+        },
+        scaleLabel: {
+            display: true,
+            labelString: 'Date'
+        }
+    }]
+
 // Data treatmen functions
 function scale_this_date(date,scall_dist){
     h = new Date(date*1000);
@@ -122,9 +141,12 @@ function create_layout(sensor,data){
     layout_add_card(cards_div,data['last_hu'],"%","Hymidity");
     chart_div.appendChild(cards_div)  
     //Add chart
-    var chart = document.createElement("canvas");
-    chart.id = sensor; chart_div.appendChild(chart);
-    // TODO timechart
+    var temp_chart= document.createElement("canvas");
+    var pres_chart = document.createElement("canvas");
+    temp_chart.id = sensor+"_temp"; 
+    chart_div.appendChild(temp_chart);
+    pres_chart.id = sensor+"_press"; 
+    chart_div.appendChild(pres_chart);
     temp_dataset = {
         label: 'Temparatures (°C)',
         yAxisID: 'T',
@@ -141,47 +163,77 @@ function create_layout(sensor,data){
         borderColor: "rgb(224, 123, 57)",
         data: data['points_pr'],
     }
-    var ctx = document.getElementById(sensor).getContext('2d');
-    var chart = new Chart(ctx, {
+    // Set the configurations for the charts
+    var xAxes_params = [{
+        type: 'time',
+        time: {
+            displayFormats:{
+            hour: 'MMM DD HH:mm', // did not like the automatic way
+            }
+        },
+        ticks: {
+            source: 'auto',
+            autoSkip: true,
+            maxTicksLimit: 15
+        },
+        scaleLabel: {
+            display: true,
+            labelString: 'Date'
+        }
+    }]
+    var temp_config = {
         type: 'line',
         data: {
-            datasets: [temp_dataset, pres_dataset]
+            datasets: [temp_dataset]
         },
         options: {
-            legend: {
+            title: {
                 display: true,
-                position: "bottom"
+                text: "Temparatures (°C)"
+            },
+            legend: {
+                display: false,
             },
             scales: {
                 yAxes: [{
                     id: 'T',
                     type: 'linear',
                     position: 'left',
-                }, {
-                    id: 'P',
-                    type: 'linear',
-                    position: 'right',
                 }],
-                xAxes: [{
-                    type: 'time',
-                    time: {
-                        displayFormats:{
-                            hour: 'MMM DD HH:mm', // did not like the automatic way
-                        }
-                    },
-                    ticks: {
-                        source: 'auto',
-                        autoSkip: true,
-                        maxTicksLimit: 15
-                    },
-                    scaleLabel: {
-                        display: true,
-                        labelString: 'Date'
-                    }
-                }]
+                xAxes: xAxes_params
             }
         }
-    });   
+    }
+    var pres_config = {
+        type: 'line',
+        data: {
+            datasets: [pres_dataset]
+        },
+        options: {
+            title: {
+                display: true,
+                text: "Pressure (hPa)"
+            },
+            legend: {
+                display: false,
+            },
+            scales: {
+                yAxes: [{
+                    id: 'P',
+                    type: 'linear',
+                    position: 'left',
+                }],
+                xAxes: xAxes_params
+            }
+        }
+    }
+
+    // Display the charts 
+    var ctx_temp = document.getElementById(sensor+"_temp").getContext('2d');
+    var temp_chart  = new Chart(ctx_temp, temp_config);
+    var ctx_pres = document.getElementById(sensor+"_press").getContext('2d');
+    var pres_chart  = new Chart(ctx_pres, pres_config);
+
 }
 
 // Apps functions
