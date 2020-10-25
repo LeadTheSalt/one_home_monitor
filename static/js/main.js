@@ -304,7 +304,7 @@ function load_data(timming){
     load_data_to_page(from,to,100,nav_el) 
 }
 function main (){
-    load_data('week')
+    load_data('today')
 }
 
 // Utility function for the database
