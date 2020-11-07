@@ -285,6 +285,9 @@ function load_data(timming){
     if (timming == 'today') {
         from.setDate(from.getDate() - 1);
         nav_el = 'nav_today'
+    }else if (timming == '2day') {
+        from.setDate(from.getDate() - 2);
+        nav_el = 'nav_2day'
     }else if (timming == 'week') {
         from.setDate(from.getDate() - 7);
         nav_el = 'nav_week'
@@ -301,10 +304,24 @@ function load_data(timming){
         from.setYear(from.getYear() - 1 + 1900); 
         nav_el = 'nav_year'
     }
-    load_data_to_page(from,to,100,nav_el) 
+    else { //default is today
+        timming = 'today'
+        from.setDate(from.getDate() - 1);
+        nav_el = 'nav_today'
+    }
+    window.history.pushState("one_url_update", "update to "+timming, '/'+timming)
+    load_data_to_page(from,to,80,nav_el) 
 }
+
+// Entry point of JS script
 function main (){
-    load_data('today')
+    var path = window.location.pathname
+    if (path != '') {
+        path = path.split('/')[0]
+    } else {
+        path = 'today'
+    }
+    load_data(path)
 }
 
 // Utility function for the database
