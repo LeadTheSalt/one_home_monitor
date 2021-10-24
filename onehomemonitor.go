@@ -219,12 +219,13 @@ func connectToDB() (*mongo.Client, context.Context, context.CancelFunc, error) {
 		runningConf.MongoDBConnexionConfiguration.Username,
 		runningConf.MongoDBConnexionConfiguration.Password,
 		runningConf.MongoDBConnexionConfiguration.ClusterFQDN)
-	client, err := mongo.NewClient(options.Client().ApplyURI(mongoConURL))
-	if err != nil {
-		return nil, nil, nil, err
-	}
+	// client, err := mongo.NewClient(options.Client().ApplyURI(mongoConURL))
+	// if err != nil {
+	//  	return nil, nil, nil, err
+	// }
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-	err = client.Connect(ctx)
+	//err = client.Connect(ctx)
+	client, err := mongo.Connect(ctx, options.Client().ApplyURI(mongoConURL))
 	if err != nil {
 		return nil, nil, cancel, err
 	}
@@ -250,6 +251,7 @@ func getData(queryFilter bson.M) (map[string][]reading, error) {
 	// Register sensors readings
 	db := client.Database("onehomesensor") //database name hardcoded, as in collecting project
 	colNames, err := db.ListCollectionNames(context.Background(), bson.D{})
+	//colNames, err := client.Database("onehomesensor").ListCollectionNames(context.Background(), bson.D{})
 	if err != nil {
 		return nil, err
 	}
